@@ -28,6 +28,10 @@ thugImg.src = '/static/images/thug.png';
 const bananaImg = new Image();
 bananaImg.src = '/static/images/banana.png';
 
+// Audio
+const audio = new Audio('/static/audio/synthwave.mid');
+audio.loop = true;
+
 // Function to draw synthwave background
 function drawSynthwaveBackground() {
     // Sky gradient
@@ -91,28 +95,8 @@ function gameLoop() {
     ctx.fillStyle = '#ff00a0';
     ctx.fillRect(10, 10, sloth.health * 2, 20);
 
-    // Check collisions
-    checkCollisions();
-
     // Request next frame
     requestAnimationFrame(gameLoop);
-}
-
-function checkCollisions() {
-    // Check banana collisions
-    bananas.forEach((banana, index) => {
-        if (isColliding(sloth, banana)) {
-            bananas.splice(index, 1);
-            sloth.health = Math.min(sloth.health + 10, 100);
-        }
-    });
-
-    // Check thug collisions
-    thugs.forEach((thug, index) => {
-        if (isColliding(sloth, thug)) {
-            sloth.health -= 0.1;
-        }
-    });
 }
 
 function isColliding(obj1, obj2) {
@@ -161,16 +145,18 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Spawn thugs and bananas
+// Spawn thugs
 setInterval(() => {
     thugs.push({
-        x: Math.random() < 0.5 ? 0 : canvas.width,
+        x: canvas.width,
         y: Math.random() * (canvas.height - 50),
         width: 40,
-        height: 40
+        height: 40,
+        speed: 2 + Math.random() * 2 // Random speed between 2 and 4
     });
 }, 2000);
 
+// Spawn bananas
 setInterval(() => {
     bananas.push({
         x: Math.random() * (canvas.width - 30),
@@ -179,3 +165,8 @@ setInterval(() => {
         height: 30
     });
 }, 5000);
+
+// Start background music
+document.addEventListener('click', () => {
+    audio.play();
+});
