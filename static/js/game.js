@@ -13,7 +13,6 @@ const sloth = {
     width: 50,
     height: 50,
     speed: 7,
-    sprintSpeed: 14,
     health: 100
 };
 
@@ -64,7 +63,7 @@ function drawSynthwaveBackground() {
     ctx.stroke();
 
     // Floor
-    ctx.fillStyle = '#120458';
+    ctx.fillStyle = '#4b0082'; // Contrasting color for the floor
     ctx.fillRect(0, FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
 }
 
@@ -81,7 +80,7 @@ function gameLoop() {
     thugs.forEach((thug, index) => {
         ctx.drawImage(thugImg, thug.x, thug.y, thug.width, thug.height);
         // Move thugs towards the left
-        thug.x -= thug.speed;
+        thug.x -= 1; // Slower speed for thugs
         if (thug.x + thug.width < 0) {
             thugs.splice(index, 1);
         }
@@ -100,6 +99,12 @@ function gameLoop() {
     ctx.fillStyle = '#ff00a0';
     ctx.fillRect(10, 10, sloth.health * 2, 20);
 
+    // Check for game over
+    if (sloth.health <= 0) {
+        alert("Game Over! Your sloth has run out of health.");
+        document.location.reload(); // Reload the game
+    }
+
     // Request next frame
     requestAnimationFrame(gameLoop);
 }
@@ -116,13 +121,18 @@ gameLoop();
 
 // Event listeners for keyboard controls
 document.addEventListener('keydown', (e) => {
-    const speed = e.shiftKey ? sloth.sprintSpeed : sloth.speed;
     switch (e.key) {
         case 'ArrowLeft':
-            sloth.x = Math.max(0, sloth.x - speed);
+            sloth.x = Math.max(0, sloth.x - sloth.speed);
             break;
         case 'ArrowRight':
-            sloth.x = Math.min(canvas.width - sloth.width, sloth.x + speed);
+            sloth.x = Math.min(canvas.width - sloth.width, sloth.x + sloth.speed);
+            break;
+        case 'ArrowUp':
+            sloth.y = Math.max(FLOOR_HEIGHT, sloth.y - sloth.speed); // Allow upward movement but restrict to floor
+            break;
+        case 'ArrowDown':
+            sloth.y = Math.min(FLOOR_HEIGHT + sloth.height, sloth.y + sloth.speed); // Allow downward movement but restrict to floor
             break;
         case '1':
             // Eat banana
@@ -150,8 +160,7 @@ setInterval(() => {
         x: canvas.width,
         y: FLOOR_HEIGHT + Math.random() * (FLOOR_HEIGHT - 50),
         width: 40,
-        height: 40,
-        speed: 1 + Math.random() // Random speed between 1 and 2
+        height: 40
     });
 }, 2000);
 
