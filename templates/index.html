@@ -8,6 +8,14 @@
 </head>
 <body>
     <div id="game-container">
+        <div id="instructions">
+            <h2>Sloth Beat 'Em Up - Controls</h2>
+            <ul>
+                <li>Arrow keys: Move the sloth</li>
+                <li>Z key: Eat banana when in contact</li>
+                <li>X key: Beat thug when in contact</li>
+            </ul>
+        </div>
         <canvas id="game-canvas"></canvas>
     </div>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
