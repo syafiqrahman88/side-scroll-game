@@ -11,6 +11,7 @@ const sloth = {
     width: 50,
     height: 50,
     speed: 5,
+    sprintSpeed: 10,
     health: 100
 };
 
@@ -38,7 +39,7 @@ function drawSynthwaveBackground() {
 
     // Sun
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height + 50, 200, Math.PI, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, canvas.height, 150, Math.PI, 2 * Math.PI);
     ctx.fillStyle = '#ff6b6b';
     ctx.fill();
 
@@ -59,7 +60,8 @@ function drawSynthwaveBackground() {
 
 // Game loop
 function gameLoop() {
-    // Draw background
+    // Clear canvas and draw background
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSynthwaveBackground();
 
     // Draw sloth
@@ -68,9 +70,11 @@ function gameLoop() {
     // Draw thugs
     thugs.forEach((thug, index) => {
         ctx.drawImage(thugImg, thug.x, thug.y, thug.width, thug.height);
-        // Move thugs towards sloth
-        if (thug.x > sloth.x) thug.x -= 1;
-        else thug.x += 1;
+        // Move thugs towards the left
+        thug.x -= thug.speed;
+        if (thug.x + thug.width < 0) {
+            thugs.splice(index, 1);
+        }
     });
 
     // Draw bananas
@@ -123,18 +127,19 @@ gameLoop();
 
 // Event listeners for keyboard controls
 document.addEventListener('keydown', (e) => {
+    const speed = e.shiftKey ? sloth.sprintSpeed : sloth.speed;
     switch (e.key) {
         case 'ArrowLeft':
-            sloth.x = Math.max(0, sloth.x - sloth.speed);
+            sloth.x = Math.max(0, sloth.x - speed);
             break;
         case 'ArrowRight':
-            sloth.x = Math.min(canvas.width - sloth.width, sloth.x + sloth.speed);
+            sloth.x = Math.min(canvas.width - sloth.width, sloth.x + speed);
             break;
         case 'ArrowUp':
-            sloth.y = Math.max(0, sloth.y - sloth.speed);
+            sloth.y = Math.max(0, sloth.y - speed);
             break;
         case 'ArrowDown':
-            sloth.y = Math.min(canvas.height - sloth.height, sloth.y + sloth.speed);
+            sloth.y = Math.min(canvas.height - sloth.height, sloth.y + speed);
             break;
         case 'z':
             // Eat banana
