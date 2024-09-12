@@ -4,14 +4,16 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 400;
 
+const FLOOR_HEIGHT = canvas.height / 2;
+
 // Game objects
 const sloth = {
     x: 50,
-    y: 300,
+    y: FLOOR_HEIGHT,
     width: 50,
     height: 50,
-    speed: 5,
-    sprintSpeed: 10,
+    speed: 7,
+    sprintSpeed: 14,
     health: 100
 };
 
@@ -35,15 +37,15 @@ audio.loop = true;
 // Function to draw synthwave background
 function drawSynthwaveBackground() {
     // Sky gradient
-    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    const skyGradient = ctx.createLinearGradient(0, 0, 0, FLOOR_HEIGHT);
     skyGradient.addColorStop(0, '#120458');
     skyGradient.addColorStop(1, '#ff00a0');
     ctx.fillStyle = skyGradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.width, FLOOR_HEIGHT);
 
     // Sun
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height, 150, Math.PI, 2 * Math.PI);
+    ctx.arc(canvas.width / 2, FLOOR_HEIGHT, 75, Math.PI, 2 * Math.PI);
     ctx.fillStyle = '#ff6b6b';
     ctx.fill();
 
@@ -52,14 +54,18 @@ function drawSynthwaveBackground() {
     ctx.strokeStyle = '#ff00ff';
     ctx.lineWidth = 2;
     for (let i = 0; i < canvas.width; i += 50) {
-        ctx.moveTo(i, canvas.height / 2);
-        ctx.lineTo(i, canvas.height);
+        ctx.moveTo(i, FLOOR_HEIGHT / 2);
+        ctx.lineTo(i, FLOOR_HEIGHT);
     }
-    for (let j = canvas.height / 2; j < canvas.height; j += 25) {
+    for (let j = FLOOR_HEIGHT / 2; j < FLOOR_HEIGHT; j += 25) {
         ctx.moveTo(0, j);
         ctx.lineTo(canvas.width, j);
     }
     ctx.stroke();
+
+    // Floor
+    ctx.fillStyle = '#120458';
+    ctx.fillRect(0, FLOOR_HEIGHT, canvas.width, FLOOR_HEIGHT);
 }
 
 // Game loop
@@ -79,16 +85,15 @@ function gameLoop() {
         if (thug.x + thug.width < 0) {
             thugs.splice(index, 1);
         }
+        // Check collision with sloth
+        if (isColliding(sloth, thug)) {
+            sloth.health = Math.max(0, sloth.health - 0.5);
+        }
     });
 
     // Draw bananas
-    bananas.forEach((banana, index) => {
+    bananas.forEach((banana) => {
         ctx.drawImage(bananaImg, banana.x, banana.y, banana.width, banana.height);
-        // Make bananas fall
-        banana.y += 2;
-        if (banana.y > canvas.height) {
-            bananas.splice(index, 1);
-        }
     });
 
     // Draw health bar
@@ -119,13 +124,7 @@ document.addEventListener('keydown', (e) => {
         case 'ArrowRight':
             sloth.x = Math.min(canvas.width - sloth.width, sloth.x + speed);
             break;
-        case 'ArrowUp':
-            sloth.y = Math.max(0, sloth.y - speed);
-            break;
-        case 'ArrowDown':
-            sloth.y = Math.min(canvas.height - sloth.height, sloth.y + speed);
-            break;
-        case 'z':
+        case '1':
             // Eat banana
             bananas.forEach((banana, index) => {
                 if (isColliding(sloth, banana)) {
@@ -134,7 +133,7 @@ document.addEventListener('keydown', (e) => {
                 }
             });
             break;
-        case 'x':
+        case '2':
             // Beat thug
             thugs.forEach((thug, index) => {
                 if (isColliding(sloth, thug)) {
@@ -149,10 +148,10 @@ document.addEventListener('keydown', (e) => {
 setInterval(() => {
     thugs.push({
         x: canvas.width,
-        y: Math.random() * (canvas.height - 50),
+        y: FLOOR_HEIGHT + Math.random() * (FLOOR_HEIGHT - 50),
         width: 40,
         height: 40,
-        speed: 2 + Math.random() * 2 // Random speed between 2 and 4
+        speed: 1 + Math.random() // Random speed between 1 and 2
     });
 }, 2000);
 
@@ -160,7 +159,7 @@ setInterval(() => {
 setInterval(() => {
     bananas.push({
         x: Math.random() * (canvas.width - 30),
-        y: 0,
+        y: FLOOR_HEIGHT + Math.random() * (FLOOR_HEIGHT - 30),
         width: 30,
         height: 30
     });
